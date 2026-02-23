@@ -38,6 +38,7 @@ reflect-cpp and sqlgen fill important gaps in C++ development. They reduce boile
     - [Simple Example](#simple-example)
     - [More Comprehensive Example](#more-comprehensive-example)
     - [Tabular data](#tabular-data)
+    - [CLI argument parsing](#cli-argument-parsing)
     - [Error messages](#error-messages)
     - [JSON schema](#json-schema)
     - [Enums](#enums)
@@ -291,6 +292,43 @@ This will resulting CSV will look like this:
 "Maggie","Simpson","Springfield",1987-04-19,0,"maggie@simpson.com"
 "Homer","Simpson","Springfield",1987-04-19,45,"homer@simpson.com"
 ```
+
+### CLI argument parsing
+
+reflect-cpp can also parse command-line arguments directly into structs using `rfl::cli::read`:
+
+```cpp
+#include <rfl/cli.hpp>
+
+struct Config {
+  std::string host_name;
+  int port;
+  bool verbose;
+  std::vector<std::string> tags;
+};
+
+int main(int argc, char* argv[]) {
+  const auto config = rfl::cli::read<Config>(argc, argv).value();
+  // ./app --host-name=localhost --port=8080 --verbose --tags=a,b,c
+}
+```
+
+Field names are automatically converted from `snake_case` to `kebab-case` (`host_name` matches `--host-name`).
+
+You can mark fields as positional arguments with `rfl::Positional<T>` and add single-character aliases with `rfl::Short<"x", T>`:
+
+```cpp
+struct Config {
+  rfl::Positional<std::string> input_file;
+  rfl::Short<"o", std::string> output_dir;
+  rfl::Short<"v", bool> verbose;
+  int count;
+};
+
+// ./app data.csv -o /tmp/out -v --count=10
+```
+
+Nested structs, `std::optional`, `std::vector`, enums, `rfl::Flatten` and `rfl::Rename` are all supported. Refer to the [documentation](https://rfl.getml.com/cli) for details.
 
 ### Error messages
 
@@ -571,6 +609,7 @@ In addition, it supports the following custom containers:
 - `rfl::Binary`: Used to express numbers in binary format.
 - `rfl::Box`: Similar to `std::unique_ptr`, but (almost) guaranteed to never be null.
 - `rfl::Bytestring`: An alias for `std::vector<std::byte>`. Supported by Avro, BSON, Cap'n Proto, CBOR, flexbuffers, msgpack and UBJSON. 
+- `rfl::Commented`: Allows you to add comments to fields (supported by YAML and XML).
 - `rfl::Generic`: A catch-all type that can represent (almost) anything.
 - `rfl::Hex`: Used to express numbers in hex format.
 - `rfl::Literal`: An explicitly enumerated string.
