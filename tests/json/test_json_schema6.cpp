@@ -1,4 +1,3 @@
-#include <optional>
 #include <rfl.hpp>
 #include <rfl/json.hpp>
 #include <string>
