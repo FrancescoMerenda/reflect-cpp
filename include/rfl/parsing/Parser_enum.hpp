@@ -7,6 +7,7 @@
 #include "../Result.hpp"
 #include "../enums.hpp"
 #include "../thirdparty/enchantum/enchantum.hpp"
+#include "../internal/has_reflector.hpp"
 #include "AreReaderAndWriter.hpp"
 #include "Parent.hpp"
 #include "Parser_base.hpp"
